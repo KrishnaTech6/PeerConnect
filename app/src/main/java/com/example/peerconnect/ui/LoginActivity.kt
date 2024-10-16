@@ -1,17 +1,21 @@
 package com.example.peerconnect.ui
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.peerconnect.R
 import com.example.peerconnect.databinding.ActivityLoginBinding
+import com.example.peerconnect.repository.MainRepository
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
+    @Inject lateinit var mainRepository: MainRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,8 +35,13 @@ class LoginActivity : AppCompatActivity() {
     private fun init(){
         binding.apply {
             btn.setOnClickListener{
-
-            }
+                mainRepository.login(usernameEt.text.toString(), passwordEt.text.toString()) { isDone, reason ->
+                    if(!isDone)
+                        Toast.makeText(this@LoginActivity, reason, Toast.LENGTH_SHORT).show()
+                    else
+                        Toast.makeText(this@LoginActivity, "Login Successful", Toast.LENGTH_SHORT).show()
+                }
         }
+    }
     }
 }
