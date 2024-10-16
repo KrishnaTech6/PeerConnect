@@ -6,19 +6,33 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.peerconnect.R
-import com.google.firebase.database.FirebaseDatabase
+import com.example.peerconnect.databinding.ActivityLoginBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityLoginBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_login)
+        setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        FirebaseDatabase.getInstance().reference.child("Hello").setValue("World")
+        init()
+
+    }
+
+    private fun init(){
+        binding.apply {
+            btn.setOnClickListener{
+
+            }
+        }
     }
 }
