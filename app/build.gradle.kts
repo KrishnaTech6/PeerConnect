@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
     id("kotlin-kapt")
-    id("com.google.dagger.hilt.android")
+    id("dagger.hilt.android.plugin")
 }
 
 android {
@@ -50,12 +50,11 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
     implementation(platform(libs.firebase.bom))
     implementation (libs.firebase.database.ktx)
     implementation (libs.gson)
     implementation (libs.webrtc)
-    implementation (libs.dagger.hilt.android)
-    kapt(libs.hilt.compiler)
+    implementation(libs.hilt.android.v252)
+    kapt(libs.hilt.android.compiler)
     implementation (libs.permissionx)
 }

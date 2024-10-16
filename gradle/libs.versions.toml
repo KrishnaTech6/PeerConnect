@@ -4,6 +4,7 @@ firebaseBom = "32.2.0"
 firebaseDatabaseKtx = "20.2.2"
 gson = "2.10.1"
 hiltAndroid = "2.44"
+hiltAndroidVersion = "2.52"
 hiltCompiler = "2.44"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
@@ -25,6 +26,8 @@ dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref =
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-database-ktx = { module = "com.google.firebase:firebase-database-ktx", version.ref = "firebaseDatabaseKtx" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidVersion" }
+hilt-android-v252 = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroidVersion" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltCompiler" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
