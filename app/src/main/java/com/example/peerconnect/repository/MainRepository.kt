@@ -2,6 +2,8 @@ package com.example.peerconnect.repository
 
 import com.example.peerconnect.firebaseClient.FirebaseClient
 import com.example.peerconnect.utils.DataModel
+import com.example.peerconnect.utils.DataModelType.StartAudioCall
+import com.example.peerconnect.utils.DataModelType.StartVideoCall
 import javax.inject.Inject
 
 class MainRepository @Inject constructor(
@@ -28,6 +30,14 @@ class MainRepository @Inject constructor(
                 }
             }
         })
+    }
+
+    fun sendConnectionRequest(target: String, isVideoCall: Boolean, success: (Boolean) -> Unit){
+        val message = DataModel(
+            target = target,
+            type = if(isVideoCall) StartVideoCall else StartAudioCall
+        )
+        firebaseClient.sendMessageToOtherClient(message, success)
     }
 
     interface Listener{

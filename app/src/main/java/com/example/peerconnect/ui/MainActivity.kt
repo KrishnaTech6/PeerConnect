@@ -12,6 +12,7 @@ import com.example.peerconnect.adapters.MainRecyclerViewAdapter
 import com.example.peerconnect.databinding.ActivityMainBinding
 import com.example.peerconnect.repository.MainRepository
 import com.example.peerconnect.service.MainServiceRepository
+import com.example.peerconnect.utils.getCameraAndMicPermissions
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -70,11 +71,24 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
     }
 
     override fun videoCallClicked(username: String) {
-        TODO("Not yet implemented")
+        //Check if permission of camera and microphone is granted
+        getCameraAndMicPermissions{
+            mainRepository.sendConnectionRequest(username, true){
+                //We have to start video call
+                // move to call activity
+            }
+        }
     }
 
     override fun audioCallClicked(username: String) {
-        TODO("Not yet implemented")
+        getCameraAndMicPermissions {
+            mainRepository.sendConnectionRequest(username, false){
+                if(it){
+                    //We have to start audio call
+                    // move to call activity
+                }
+            }
+        }
     }
 
     private fun startMyService() {
