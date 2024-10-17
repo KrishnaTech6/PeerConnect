@@ -11,6 +11,7 @@ import com.example.peerconnect.R
 import com.example.peerconnect.adapters.MainRecyclerViewAdapter
 import com.example.peerconnect.databinding.ActivityMainBinding
 import com.example.peerconnect.repository.MainRepository
+import com.example.peerconnect.service.MainServiceRepository
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -22,6 +23,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
     private var mainAdapter: MainRecyclerViewAdapter?= null
 
     @Inject lateinit var mainRepository: MainRepository
+    @Inject lateinit var mainServiceRepository: MainServiceRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +78,6 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
     }
 
     private fun startMyService() {
-
+        mainServiceRepository.startService(username!!)
     }
 }
