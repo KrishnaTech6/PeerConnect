@@ -1,5 +1,7 @@
 package com.example.peerconnect.firebaseClient
 
+import com.example.peerconnect.utils.DataModel
+import com.example.peerconnect.utils.FirebaseFieldName.LATEST_EVENT
 import com.example.peerconnect.utils.FirebaseFieldName.PASSWORD
 import com.example.peerconnect.utils.FirebaseFieldName.STATUS
 import com.example.peerconnect.utils.MyEventListener
@@ -68,5 +70,42 @@ class FirebaseClient @Inject constructor(
         })
 
 
+    }
+
+    fun subscribeForLatestEvents(listener: Listener){
+        try{
+            dbRef.child(currentUserName!!).child(LATEST_EVENT).addValueEventListener(object: MyEventListener(){
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    super.onDataChange(snapshot)
+                    val event = try {
+                        gson.fromJson(snapshot.value.toString(), DataModel::class.java)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        null
+                    }
+                    event?.let {
+                        //Data flows from FirebaseClient → MainRepository → MainService.
+                        listener.onLatestEventReceived(it)
+                    }
+                }
+            })
+        }catch (e: Exception){
+            e.printStackTrace()
+        }
+
+    }
+    fun sendMessageToOtherClient(message: DataModel, success:(Boolean)->Unit){
+        val convertedMessage = gson.toJson(message.copy(sender = currentUserName))
+        dbRef.child(message.target).child(LATEST_EVENT).setValue(convertedMessage)
+            .addOnCompleteListener{
+                success(true)
+            }
+            .addOnFailureListener{
+                success(false)
+            }
+    }
+
+    interface Listener{
+        fun onLatestEventReceived(event: DataModel)
     }
 }

@@ -1,22 +1,30 @@
 package com.example.peerconnect.service
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.peerconnect.R
+import com.example.peerconnect.repository.MainRepository
 import com.example.peerconnect.service.MainServiceActions.START_SERVICE
+import com.example.peerconnect.utils.DataModel
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainService : Service(){
+class MainService : Service(), MainRepository.Listener {
     private var isServiceRunning = false
     private var username: String? = null
+    private  val TAG = "MainService"
 
     private lateinit var notificationManager: NotificationManager
+
+    @Inject lateinit var mainRepository: MainRepository
 
     override fun onCreate() {
         super.onCreate()
@@ -41,9 +49,12 @@ class MainService : Service(){
             startServiceWithNotification()
 
             //setup my clients
+            mainRepository.listener = this
+            mainRepository.initFirebase()
         }
     }
 
+    @SuppressLint("ForegroundServiceType")
     private fun startServiceWithNotification() {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             val notificationChannel= NotificationChannel(
@@ -60,6 +71,10 @@ class MainService : Service(){
 
     override fun onBind(p0: Intent?): IBinder? {
         return null
+    }
+
+    override fun onLatestEventReceived(data: DataModel) {
+        Log.d(TAG, "onLatestEventReceived: $data")
     }
 
 }
