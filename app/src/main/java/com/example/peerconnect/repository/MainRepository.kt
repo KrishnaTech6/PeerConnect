@@ -8,7 +8,9 @@ class MainRepository @Inject constructor(
 ) {
     fun login(username: String, password: String, isDone: (Boolean , String ?)-> Unit) {
         firebaseClient.login(username, password, isDone)
+    }
 
-
+    fun observeUserStatus(status: (List<Pair<String, String>>) -> Unit) {
+        firebaseClient.observeUserStatus(status)
     }
 }

@@ -1,5 +1,6 @@
 package com.example.peerconnect.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -38,8 +39,11 @@ class LoginActivity : AppCompatActivity() {
                 mainRepository.login(usernameEt.text.toString(), passwordEt.text.toString()) { isDone, reason ->
                     if(!isDone)
                         Toast.makeText(this@LoginActivity, reason, Toast.LENGTH_SHORT).show()
-                    else
-                        Toast.makeText(this@LoginActivity, "Login Successful", Toast.LENGTH_SHORT).show()
+                    else {
+                        startActivity(Intent(this@LoginActivity, MainActivity::class.java).apply {
+                            putExtra("username", usernameEt.text.toString())
+                        })
+                    }
                 }
         }
     }
