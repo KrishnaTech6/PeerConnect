@@ -2,22 +2,27 @@ package com.example.peerconnect.ui
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.peerconnect.R
 import com.example.peerconnect.adapters.MainRecyclerViewAdapter
 import com.example.peerconnect.databinding.ActivityMainBinding
 import com.example.peerconnect.repository.MainRepository
+import com.example.peerconnect.service.MainService
 import com.example.peerconnect.service.MainServiceRepository
+import com.example.peerconnect.utils.DataModel
+import com.example.peerconnect.utils.DataModelType
 import com.example.peerconnect.utils.getCameraAndMicPermissions
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
+class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, MainService.Listener {
     private lateinit var binding: ActivityMainBinding
     private var username : String? = null
     private val TAG = "MainActivity"
@@ -55,6 +60,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
 
     private fun subscribeObservers() {
         setupRecyclerView()
+        MainService.listener = this
         mainRepository.observeUserStatus{
             Log.d(TAG, "subscribeObservers: $it")
             mainAdapter?.updateList(it)
@@ -76,6 +82,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
             mainRepository.sendConnectionRequest(username, true){
                 //We have to start video call
                 // move to call activity
+                Toast.makeText(this@MainActivity, "Moving to VC Activity", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -93,5 +100,27 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
 
     private fun startMyService() {
         mainServiceRepository.startService(username!!)
+    }
+
+    override fun onCallReceived(model: DataModel) {
+        runOnUiThread{
+            binding.apply {
+                val isVideoCall = model.type == DataModelType.StartVideoCall
+                val isVideoCallText = if(isVideoCall) "Video" else "Audio"
+                incomingCallTitleTv.text = " ${model.sender} Incoming $isVideoCallText Call"
+                incomingCallLayout.isVisible = true
+                acceptButton.setOnClickListener {
+                    getCameraAndMicPermissions {
+                        incomingCallLayout.isVisible= false
+                        //We have to start video call
+                        // move to call activity
+                        Toast.makeText(this@MainActivity, "Moving to VC Activity", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                declineButton.setOnClickListener {
+                    incomingCallLayout.isVisible = false
+                }
+            }
+        }
     }
 }

@@ -7,12 +7,13 @@ import android.app.Service
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.peerconnect.R
 import com.example.peerconnect.repository.MainRepository
 import com.example.peerconnect.service.MainServiceActions.START_SERVICE
 import com.example.peerconnect.utils.DataModel
+import com.example.peerconnect.utils.DataModelType
+import com.example.peerconnect.utils.isValid
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -25,6 +26,10 @@ class MainService : Service(), MainRepository.Listener {
     private lateinit var notificationManager: NotificationManager
 
     @Inject lateinit var mainRepository: MainRepository
+
+    companion object{
+        var listener: Listener? = null
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -74,7 +79,21 @@ class MainService : Service(), MainRepository.Listener {
     }
 
     override fun onLatestEventReceived(data: DataModel) {
-        Log.d(TAG, "onLatestEventReceived: $data")
+        if(data.isValid()){
+            when (data.type) {
+                DataModelType.StartAudioCall,
+                DataModelType.StartVideoCall,
+                -> {
+                    listener?.onCallReceived(data)
+                }
+
+                else -> Unit
+            }
+        }
+    }
+
+    interface Listener{
+        fun onCallReceived(model: DataModel)
     }
 
 }
