@@ -10,6 +10,7 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.example.peerconnect.R
 import com.example.peerconnect.repository.MainRepository
+import com.example.peerconnect.service.MainServiceActions.SETUP_VIEWS
 import com.example.peerconnect.service.MainServiceActions.START_SERVICE
 import com.example.peerconnect.utils.DataModel
 import com.example.peerconnect.utils.DataModelType
@@ -40,10 +41,26 @@ class MainService : Service(), MainRepository.Listener {
         intent?.let{ incomingIntent ->
             when(incomingIntent.action){
                 START_SERVICE.name -> handleStartService(incomingIntent)
+                SETUP_VIEWS.name -> handleSetupViews(incomingIntent)
                 else -> Unit
             }
         }
         return START_STICKY
+    }
+
+    private fun handleSetupViews(incomingIntent: Intent) {
+        val isCaller = incomingIntent.getBooleanExtra("isCaller", true)
+        val isVideoCall = incomingIntent.getBooleanExtra("isVideoCall", true)
+        val target = incomingIntent.getStringExtra("target")
+
+        mainRepository.setTarget(target!!)
+        //initialize our widgets , get audio and video call
+        //get prepared for call
+
+        if(!isCaller){// is a Callee
+            //Todo: mainRepository.startCall()
+        }
+
     }
 
     private fun handleStartService(incomingIntent: Intent) {

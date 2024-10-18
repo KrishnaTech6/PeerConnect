@@ -9,7 +9,8 @@ import javax.inject.Inject
 class MainRepository @Inject constructor(
     private val firebaseClient: FirebaseClient
 ) {
-     var listener: Listener? = null
+    private var target: String? = null
+    var listener: Listener? = null
 
     fun login(username: String, password: String, isDone: (Boolean, String ?)-> Unit) {
         firebaseClient.login(username, password, isDone)
@@ -38,6 +39,10 @@ class MainRepository @Inject constructor(
             type = if(isVideoCall) StartVideoCall else StartAudioCall
         )
         firebaseClient.sendMessageToOtherClient(message, success)
+    }
+
+    fun setTarget(target: String) {
+        this.target = target
     }
 
     interface Listener{

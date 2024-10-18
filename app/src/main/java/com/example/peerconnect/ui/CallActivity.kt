@@ -8,12 +8,16 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import com.example.peerconnect.R
 import com.example.peerconnect.databinding.ActivityCallBinding
+import com.example.peerconnect.service.MainServiceRepository
+import javax.inject.Inject
 
 class CallActivity : AppCompatActivity() {
     private var isCaller:Boolean = true
     private var isVideoCall: Boolean = true
     private var target:String? = null
     private lateinit var binding: ActivityCallBinding
+
+    @Inject lateinit var serviceRepository: MainServiceRepository
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -41,6 +45,7 @@ class CallActivity : AppCompatActivity() {
                 screenShareButton.isVisible= false
                 switchCameraButton.isVisible= false
             }
+            serviceRepository.setupViews(isVideoCall, isCaller, target!!)
         }
     }
 }
