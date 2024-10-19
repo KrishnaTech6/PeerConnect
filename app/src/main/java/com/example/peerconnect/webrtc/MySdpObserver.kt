@@ -3,8 +3,8 @@ package com.example.peerconnect.webrtc
 import org.webrtc.SdpObserver
 import org.webrtc.SessionDescription
 
-class MySdpObserver: SdpObserver {
-    override fun onCreateSuccess(p0: SessionDescription?) {
+open class MySdpObserver: SdpObserver{
+    override fun onCreateSuccess(desc: SessionDescription?) {
     }
 
     override fun onSetSuccess() {
