@@ -105,6 +105,14 @@ class FirebaseClient @Inject constructor(
             }
     }
 
+    fun changeMyStatus(status: UserStatus) {
+        dbRef.child(currentUserName!!).child(STATUS).setValue(status)
+    }
+
+    fun clearLatestEvent() {
+        dbRef.child(currentUserName!!).child(LATEST_EVENT).setValue(null)
+    }
+
     interface Listener{
         fun onLatestEventReceived(event: DataModel)
     }

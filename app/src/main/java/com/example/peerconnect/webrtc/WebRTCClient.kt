@@ -20,7 +20,9 @@ import org.webrtc.SurfaceTextureHelper
 import org.webrtc.SurfaceViewRenderer
 import org.webrtc.VideoTrack
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class WebRTCClient @Inject constructor(
     private val context: Context,
     private val gson: Gson
@@ -81,7 +83,7 @@ class WebRTCClient @Inject constructor(
     private fun createPeerConnection(observer: PeerConnection.Observer): PeerConnection? {
         return peerConnectionFactory.createPeerConnection(iceServer, observer)
     }
-    private fun initializeWebRTCClient(username: String, observer: PeerConnection.Observer){
+     fun initializeWebRTCClient(username: String, observer: PeerConnection.Observer){
         this.username = username
         localTrackId= "${username}_track"
         localStreamId= "${username}_stream"
