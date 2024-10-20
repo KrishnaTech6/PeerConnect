@@ -8,6 +8,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import com.example.peerconnect.R
 import com.example.peerconnect.databinding.ActivityCallBinding
+import com.example.peerconnect.service.MainService
 import com.example.peerconnect.service.MainServiceRepository
 import javax.inject.Inject
 
@@ -45,6 +46,8 @@ class CallActivity : AppCompatActivity() {
                 screenShareButton.isVisible= false
                 switchCameraButton.isVisible= false
             }
+            MainService.localSurfaceView = localView
+            MainService.remoteSurfaceView = remoteView
             serviceRepository.setupViews(isVideoCall, isCaller, target!!)
         }
     }

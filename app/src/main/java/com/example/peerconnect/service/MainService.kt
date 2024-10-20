@@ -16,6 +16,7 @@ import com.example.peerconnect.utils.DataModel
 import com.example.peerconnect.utils.DataModelType
 import com.example.peerconnect.utils.isValid
 import dagger.hilt.android.AndroidEntryPoint
+import org.webrtc.SurfaceViewRenderer
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -30,6 +31,8 @@ class MainService : Service(), MainRepository.Listener {
 
     companion object{
         var listener: Listener? = null
+        var localSurfaceView: SurfaceViewRenderer? = null
+        var remoteSurfaceView: SurfaceViewRenderer? = null
     }
 
     override fun onCreate() {
@@ -57,10 +60,12 @@ class MainService : Service(), MainRepository.Listener {
         //initialize our widgets , get audio and video call
         //get prepared for call
 
-        if(!isCaller){// is a Callee
-            //Todo: mainRepository.startCall()
-        }
+        mainRepository.initLocalSurfaceView(localSurfaceView!!, isVideoCall)
+        mainRepository.initRemoteSurfaceView(remoteSurfaceView!!)
 
+        if(!isCaller){// is a Callee
+            mainRepository.startCall()
+        }
     }
 
     private fun handleStartService(incomingIntent: Intent) {
@@ -73,6 +78,7 @@ class MainService : Service(), MainRepository.Listener {
             //setup my clients
             mainRepository.listener = this
             mainRepository.initFirebase()
+            mainRepository.initWebRTCClient(username!!)
         }
     }
 
