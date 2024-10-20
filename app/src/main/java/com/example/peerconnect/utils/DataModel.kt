@@ -2,7 +2,7 @@ package com.example.peerconnect.utils
 
 
 enum class DataModelType{
-    StartAudioCall , StartVideoCall, Offer, Answer, IceCandidate , EndCall
+    StartAudioCall , StartVideoCall, Offer, Answer, IceCandidates , EndCall
 }
 data class DataModel(
     val sender: String? = null,

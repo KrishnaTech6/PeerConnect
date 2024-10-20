@@ -115,6 +115,10 @@ class MainService : Service(), MainRepository.Listener {
         }
     }
 
+    override fun endCall() {
+
+    }
+
     interface Listener{
         fun onCallReceived(model: DataModel)
     }

@@ -137,7 +137,7 @@ class WebRTCClient @Inject constructor(
         addIceCandidateToPeer(iceCandidate)
         listener?.onTransferEventToSocket(
             DataModel(
-                type = DataModelType.IceCandidate,
+                type = DataModelType.IceCandidates,
                 sender = username,
                 target = target,
                 data = gson.toJson(iceCandidate)

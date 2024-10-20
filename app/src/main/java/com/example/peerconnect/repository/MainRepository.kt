@@ -2,15 +2,20 @@ package com.example.peerconnect.repository
 
 import com.example.peerconnect.firebaseClient.FirebaseClient
 import com.example.peerconnect.utils.DataModel
+import com.example.peerconnect.utils.DataModelType.Answer
 import com.example.peerconnect.utils.DataModelType.EndCall
+import com.example.peerconnect.utils.DataModelType.IceCandidates
+import com.example.peerconnect.utils.DataModelType.Offer
 import com.example.peerconnect.utils.DataModelType.StartAudioCall
 import com.example.peerconnect.utils.DataModelType.StartVideoCall
 import com.example.peerconnect.utils.UserStatus
 import com.example.peerconnect.webrtc.MyPeerObserver
 import com.example.peerconnect.webrtc.WebRTCClient
+import com.google.gson.Gson
 import org.webrtc.IceCandidate
 import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
+import org.webrtc.SessionDescription
 import org.webrtc.SurfaceViewRenderer
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,7 +23,8 @@ import javax.inject.Singleton
 @Singleton
 class MainRepository @Inject constructor(
     private val firebaseClient: FirebaseClient,
-    private val webRTCClient: WebRTCClient
+    private val webRTCClient: WebRTCClient,
+    private val gson: Gson
 ) : WebRTCClient.Listener {
     private var target: String? = null
     var listener: Listener? = null
@@ -37,7 +43,32 @@ class MainRepository @Inject constructor(
             override fun onLatestEventReceived(event: DataModel) {
                 listener?.onLatestEventReceived(event)
                 when(event.type){
+                    Offer ->{
+                        webRTCClient.onRemoteSessionReceived(
+                            SessionDescription(SessionDescription.Type.OFFER, event.data.toString())
+                        )
+                        webRTCClient.answer(target!!)
+                    }
+                    Answer -> {
+                        webRTCClient.onRemoteSessionReceived(
+                            SessionDescription(SessionDescription.Type.ANSWER, event.data.toString())
+                        )
+                    }
+                    IceCandidates -> {
+                        val candidate: IceCandidate? = try {
+                            gson.fromJson(event.data.toString(), IceCandidate::class.java)
+                        }catch (e:Exception){
+                            null
+                        }
 
+                        candidate?.let {
+                            webRTCClient.addIceCandidateToPeer(it)
+                        }
+
+                    }
+                    EndCall -> {
+                        listener?.endCall()
+                    }
                     else -> Unit
 
                 }
@@ -59,6 +90,7 @@ class MainRepository @Inject constructor(
 
     interface Listener{
         fun onLatestEventReceived(data: DataModel)
+        fun endCall()
     }
 
 
@@ -75,7 +107,7 @@ class MainRepository @Inject constructor(
                 }
             }
 
-            override fun onIceCandidate(p0: IceCandidate?) {
+            override fun onIceCandidate(p0: org.webrtc.IceCandidate?) {
                 super.onIceCandidate(p0)
                 p0?.let {
                     webRTCClient.sendIceCandidate(target!!, it)
