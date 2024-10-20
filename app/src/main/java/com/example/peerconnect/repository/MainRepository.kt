@@ -45,7 +45,9 @@ class MainRepository @Inject constructor(
                 when(event.type){
                     Offer ->{
                         webRTCClient.onRemoteSessionReceived(
-                            SessionDescription(SessionDescription.Type.OFFER, event.data.toString())
+                            SessionDescription(
+                                SessionDescription.Type.OFFER,
+                                event.data.toString())
                         )
                         webRTCClient.answer(target!!)
                     }
@@ -107,7 +109,7 @@ class MainRepository @Inject constructor(
                 }
             }
 
-            override fun onIceCandidate(p0: org.webrtc.IceCandidate?) {
+            override fun onIceCandidate(p0: IceCandidate?) {
                 super.onIceCandidate(p0)
                 p0?.let {
                     webRTCClient.sendIceCandidate(target!!, it)

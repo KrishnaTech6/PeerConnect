@@ -10,6 +10,7 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.example.peerconnect.R
 import com.example.peerconnect.repository.MainRepository
+import com.example.peerconnect.service.MainServiceActions.END_CALL
 import com.example.peerconnect.service.MainServiceActions.SETUP_VIEWS
 import com.example.peerconnect.service.MainServiceActions.START_SERVICE
 import com.example.peerconnect.utils.DataModel
@@ -31,6 +32,7 @@ class MainService : Service(), MainRepository.Listener {
 
     companion object{
         var listener: Listener? = null
+        var endCallListener: EndCallListener? = null
         var localSurfaceView: SurfaceViewRenderer? = null
         var remoteSurfaceView: SurfaceViewRenderer? = null
     }
@@ -45,14 +47,27 @@ class MainService : Service(), MainRepository.Listener {
             when(incomingIntent.action){
                 START_SERVICE.name -> handleStartService(incomingIntent)
                 SETUP_VIEWS.name -> handleSetupViews(incomingIntent)
+                END_CALL.name -> handleEndCall()
                 else -> Unit
             }
         }
         return START_STICKY
     }
 
+    private fun handleEndCall() {
+        mainRepository.sendEndCall()
+
+        endCallAndRestartRepository()
+    }
+
+    private fun endCallAndRestartRepository() {
+        mainRepository.endCall()
+        endCallListener?.onCallEnded()
+        mainRepository.initWebRTCClient(username!!)
+    }
+
     private fun handleSetupViews(incomingIntent: Intent) {
-        val isCaller = incomingIntent.getBooleanExtra("isCaller", true)
+        val isCaller = incomingIntent.getBooleanExtra("isCaller", false)
         val isVideoCall = incomingIntent.getBooleanExtra("isVideoCall", true)
         val target = incomingIntent.getStringExtra("target")
 
@@ -105,8 +120,7 @@ class MainService : Service(), MainRepository.Listener {
         if(data.isValid()){
             when (data.type) {
                 DataModelType.StartAudioCall,
-                DataModelType.StartVideoCall,
-                -> {
+                DataModelType.StartVideoCall -> {
                     listener?.onCallReceived(data)
                 }
 
@@ -116,11 +130,16 @@ class MainService : Service(), MainRepository.Listener {
     }
 
     override fun endCall() {
-
+        //We are receiving end call signal from remote peer
+        endCallAndRestartRepository()
     }
 
     interface Listener{
         fun onCallReceived(model: DataModel)
+    }
+
+    interface EndCallListener {
+        fun onCallEnded()
     }
 
 }

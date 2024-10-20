@@ -10,12 +10,14 @@ import com.example.peerconnect.R
 import com.example.peerconnect.databinding.ActivityCallBinding
 import com.example.peerconnect.service.MainService
 import com.example.peerconnect.service.MainServiceRepository
+import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-class CallActivity : AppCompatActivity() {
+@AndroidEntryPoint
+class CallActivity : AppCompatActivity(), MainService.EndCallListener {
+    private var target:String? = null
     private var isCaller:Boolean = true
     private var isVideoCall: Boolean = true
-    private var target:String? = null
     private lateinit var binding: ActivityCallBinding
 
     @Inject lateinit var serviceRepository: MainServiceRepository
@@ -29,7 +31,6 @@ class CallActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
         init()
     }
 
@@ -41,14 +42,34 @@ class CallActivity : AppCompatActivity() {
         isVideoCall = intent.getBooleanExtra("isVideoCall", true)
 
         binding.apply {
+            callTitleTv.text = "In call with $target"
             if(!isVideoCall){
                 toggleCameraButton.isVisible= false
                 screenShareButton.isVisible= false
                 switchCameraButton.isVisible= false
             }
-            MainService.localSurfaceView = localView
             MainService.remoteSurfaceView = remoteView
+            MainService.localSurfaceView = localView
             serviceRepository.setupViews(isVideoCall, isCaller, target!!)
+
+            endCallButton.setOnClickListener{
+                serviceRepository.sendEndCall()
+            }
         }
+        MainService.endCallListener = this
+    }
+
+    override fun onCallEnded() {
+        finish()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        MainService.remoteSurfaceView?.release()
+        MainService.remoteSurfaceView = null
+
+        MainService.localSurfaceView?.release()
+        MainService.localSurfaceView = null
+
     }
 }

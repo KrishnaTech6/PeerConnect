@@ -37,4 +37,10 @@ class MainServiceRepository @Inject constructor(
             }
         startServiceIntent(intent)
     }
+
+    fun sendEndCall() {
+        val intent  = Intent(context, MainService::class.java)
+        intent.action = MainServiceActions.END_CALL.name
+        startServiceIntent(intent)
+    }
 }
