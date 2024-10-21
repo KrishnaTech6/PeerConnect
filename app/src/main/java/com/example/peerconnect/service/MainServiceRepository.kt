@@ -49,4 +49,17 @@ class MainServiceRepository @Inject constructor(
         intent.action = MainServiceActions.SWITCH_CAMERA.name
         startServiceIntent(intent)
     }
+
+    fun toggleAudio(shouldBeMuted: Boolean) {
+        val intent = Intent(context, MainService::class.java)
+        intent.action = MainServiceActions.TOGGLE_AUDIO.name
+        intent.putExtra("shouldBeMuted", shouldBeMuted)
+        startServiceIntent(intent)
+    }
+    fun toggleVideo(shouldBeMuted: Boolean) {
+        val intent = Intent(context, MainService::class.java)
+        intent.action = MainServiceActions.TOGGLE_VIDEO.name
+        intent.putExtra("shouldBeMuted", shouldBeMuted)
+        startServiceIntent(intent)
+    }
 }

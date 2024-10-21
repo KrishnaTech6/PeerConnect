@@ -20,6 +20,9 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener {
     private var isVideoCall: Boolean = true
     private lateinit var binding: ActivityCallBinding
 
+    private var isMicrophoneMuted = false
+    private var isCameraMuted = false
+
     @Inject lateinit var serviceRepository: MainServiceRepository
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,6 +64,38 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener {
             }
         }
         MainService.endCallListener = this
+        setupMicToggleClicked()
+        setCameraToggleClicked()
+    }
+
+    private fun setupMicToggleClicked(){
+        binding.apply {
+            toggleMicrophoneButton.setOnClickListener {
+                if(!isMicrophoneMuted){
+                    serviceRepository.toggleAudio(true)
+                    toggleMicrophoneButton.setImageResource(R.drawable.ic_mic_on)
+                }else{
+                    serviceRepository.toggleAudio(false)
+                    toggleMicrophoneButton.setImageResource(R.drawable.ic_mic_off)
+                }
+                isMicrophoneMuted =!isMicrophoneMuted
+            }
+        }
+    }
+
+    private fun setCameraToggleClicked(){
+        binding.apply {
+            toggleCameraButton.setOnClickListener {
+                if(!isCameraMuted){
+                    serviceRepository.toggleVideo(true)
+                    toggleCameraButton.setImageResource(R.drawable.ic_camera_on)
+                }else{
+                    serviceRepository.toggleVideo(false)
+                    toggleCameraButton.setImageResource(R.drawable.ic_camera_off)
+                }
+                isCameraMuted = !isCameraMuted
+            }
+        }
     }
 
     override fun onCallEnded() {

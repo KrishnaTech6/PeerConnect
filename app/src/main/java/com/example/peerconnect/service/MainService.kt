@@ -14,6 +14,8 @@ import com.example.peerconnect.service.MainServiceActions.END_CALL
 import com.example.peerconnect.service.MainServiceActions.SETUP_VIEWS
 import com.example.peerconnect.service.MainServiceActions.START_SERVICE
 import com.example.peerconnect.service.MainServiceActions.SWITCH_CAMERA
+import com.example.peerconnect.service.MainServiceActions.TOGGLE_AUDIO
+import com.example.peerconnect.service.MainServiceActions.TOGGLE_VIDEO
 import com.example.peerconnect.utils.DataModel
 import com.example.peerconnect.utils.DataModelType
 import com.example.peerconnect.utils.isValid
@@ -50,10 +52,22 @@ class MainService : Service(), MainRepository.Listener {
                 SETUP_VIEWS.name -> handleSetupViews(incomingIntent)
                 END_CALL.name -> handleEndCall()
                 SWITCH_CAMERA.name -> handleSwitchCamera()
+                TOGGLE_AUDIO.name -> handleToggleAudio(incomingIntent)
+                TOGGLE_VIDEO.name -> handleToggleVideo(incomingIntent)
                 else -> Unit
             }
         }
         return START_STICKY
+    }
+
+    private fun handleToggleVideo(incomingIntent: Intent) {
+        val shouldBeMuted = incomingIntent.getBooleanExtra("shouldBeMuted", false)
+        mainRepository.toggleVideo(shouldBeMuted = shouldBeMuted)
+    }
+
+    private fun handleToggleAudio(incomingIntent: Intent) {
+        val shouldBeMuted = incomingIntent.getBooleanExtra("shouldBeMuted", false)
+        mainRepository.toggleAudio(shouldBeMuted = shouldBeMuted)
     }
 
     private fun handleSwitchCamera() {
