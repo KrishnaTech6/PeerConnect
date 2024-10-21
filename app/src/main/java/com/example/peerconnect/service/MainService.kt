@@ -13,6 +13,7 @@ import com.example.peerconnect.repository.MainRepository
 import com.example.peerconnect.service.MainServiceActions.END_CALL
 import com.example.peerconnect.service.MainServiceActions.SETUP_VIEWS
 import com.example.peerconnect.service.MainServiceActions.START_SERVICE
+import com.example.peerconnect.service.MainServiceActions.SWITCH_CAMERA
 import com.example.peerconnect.utils.DataModel
 import com.example.peerconnect.utils.DataModelType
 import com.example.peerconnect.utils.isValid
@@ -48,10 +49,15 @@ class MainService : Service(), MainRepository.Listener {
                 START_SERVICE.name -> handleStartService(incomingIntent)
                 SETUP_VIEWS.name -> handleSetupViews(incomingIntent)
                 END_CALL.name -> handleEndCall()
+                SWITCH_CAMERA.name -> handleSwitchCamera()
                 else -> Unit
             }
         }
         return START_STICKY
+    }
+
+    private fun handleSwitchCamera() {
+        mainRepository.switchCamera()
     }
 
     private fun handleEndCall() {

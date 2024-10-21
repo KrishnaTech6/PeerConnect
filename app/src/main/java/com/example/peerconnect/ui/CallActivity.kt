@@ -55,6 +55,10 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener {
             endCallButton.setOnClickListener{
                 serviceRepository.sendEndCall()
             }
+
+            switchCameraButton.setOnClickListener {
+                serviceRepository.switchCamera()
+            }
         }
         MainService.endCallListener = this
     }
