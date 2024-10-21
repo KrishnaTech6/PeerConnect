@@ -1,7 +1,13 @@
 package com.example.peerconnect.ui
 
+import android.content.Context
+import android.content.Intent
+import android.media.projection.MediaProjectionManager
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -24,8 +30,27 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener {
     private var isMicrophoneMuted = false
     private var isCameraMuted = false
     private var isSpeakerMode = true
+    var isScreenCasting = false
 
     @Inject lateinit var serviceRepository: MainServiceRepository
+    private lateinit var requestScreenCaptureLauncher: ActivityResultLauncher<Intent>
+
+    override fun onStart() {
+        super.onStart()
+        requestScreenCaptureLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) { result ->
+            if(result.resultCode == RESULT_OK){
+                val intent= result.data
+                //give result to service and it passes to webrtc client
+                MainService.screenPermissionIntent = intent
+                isScreenCasting= true
+                updateUiToScreenCaptureIsOn()
+                serviceRepository.toggleScreenShare(true)
+            }else {
+
+            }
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -67,8 +92,61 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener {
         }
         MainService.endCallListener = this
         setupMicToggleClicked()
+        setupScreenCasting()
         setCameraToggleClicked()
         setUpToggleAudioDevice()
+    }
+
+    private fun setupScreenCasting() {
+        binding.apply {
+            screenShareButton.setOnClickListener {
+                if(!isScreenCasting){
+                    AlertDialog.Builder(this@CallActivity)
+                        .setTitle("Screen Casting")
+                        .setMessage("Are you sure to cast your screen?")
+                        .setNegativeButton("No"){dialog, _->
+                            startScreenCasting()
+                            dialog.dismiss()
+                        }
+                        .setPositiveButton("Yes"){dialog, _->
+                            dialog.dismiss()
+                        }.create().show()
+
+                }else{
+                    isScreenCasting = false
+                    updateUiToScreenCaptureIsOff()
+                    serviceRepository.toggleScreenShare(false)
+                }
+            }
+        }
+
+
+    }
+
+    private fun startScreenCasting() {
+        val mediaProjectionManager = application.getSystemService(
+            Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        val captureIntent = mediaProjectionManager.createScreenCaptureIntent()
+        requestScreenCaptureLauncher.launch(captureIntent)
+
+    }
+
+    private fun updateUiToScreenCaptureIsOn(){
+        binding.apply {
+            localView.isVisible= false
+            toggleCameraButton.isVisible = false
+            switchCameraButton.isVisible = false
+            screenShareButton.setImageResource(R.drawable.ic_stop_screen_share)
+        }
+    }
+
+    private fun updateUiToScreenCaptureIsOff(){
+        binding.apply {
+            localView.isVisible= true
+            toggleCameraButton.isVisible = true
+            switchCameraButton.isVisible = true
+            screenShareButton.setImageResource(R.drawable.ic_screen_share)
+        }
     }
 
     private fun setupMicToggleClicked(){

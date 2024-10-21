@@ -1,6 +1,11 @@
 package com.example.peerconnect.webrtc
 
 import android.content.Context
+import android.content.Intent
+import android.media.projection.MediaProjection
+import android.util.DisplayMetrics
+import android.util.Log
+import android.view.WindowManager
 import com.example.peerconnect.utils.DataModel
 import com.example.peerconnect.utils.DataModelType
 import com.google.gson.Gson
@@ -15,9 +20,11 @@ import org.webrtc.MediaConstraints
 import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
 import org.webrtc.PeerConnectionFactory
+import org.webrtc.ScreenCapturerAndroid
 import org.webrtc.SessionDescription
 import org.webrtc.SurfaceTextureHelper
 import org.webrtc.SurfaceViewRenderer
+import org.webrtc.VideoCapturer
 import org.webrtc.VideoTrack
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -59,6 +66,12 @@ class WebRTCClient @Inject constructor(
     private var localAudioTrack: AudioTrack?=null
     private var localVideoTrack: VideoTrack?=null
 
+
+    //Screen sharing variables
+    private var permissionIntent: Intent? = null
+    private var screenCapturer: VideoCapturer? = null
+    private val localScreenVideoSource by lazy { peerConnectionFactory.createVideoSource(false) }
+    private var localScreenShareVideoTrack: VideoTrack? = null
 
     //Installing requirement section
     init {
@@ -147,6 +160,7 @@ class WebRTCClient @Inject constructor(
     fun closeConnection(){
         try {
             videoCapturer.dispose()
+            screenCapturer?.dispose()
             localStream?.dispose()
             peerConnection?.close()
         }catch (e:Exception){
@@ -227,6 +241,56 @@ class WebRTCClient @Inject constructor(
         localSurfaceView.clearImage()
         localStream?.removeTrack(localVideoTrack)
         localVideoTrack?.dispose()
+    }
+
+    //Screen Capture section
+
+    fun setPermissionIntent(screenPermissionIntent: Intent) {
+        this.permissionIntent=screenPermissionIntent
+
+
+    }
+
+    fun startScreenCapturing() {
+        val displayMetrics = DisplayMetrics()
+        val windowsManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        windowsManager.defaultDisplay.getMetrics(displayMetrics)
+
+        val screenWidthPixels = displayMetrics.widthPixels
+        val screenHeightPixels = displayMetrics.heightPixels
+
+        val surfaceTextureHelper = SurfaceTextureHelper.create(
+            Thread.currentThread().name, eglBaseContext
+        )
+        screenCapturer= createScreenCapturer()
+        screenCapturer!!.initialize(surfaceTextureHelper, context, localScreenVideoSource.capturerObserver)
+
+        screenCapturer!!.startCapture(screenWidthPixels, screenHeightPixels, 15)
+        localScreenShareVideoTrack = peerConnectionFactory.createVideoTrack(
+            localTrackId+"_video", localScreenVideoSource
+        )
+        localScreenShareVideoTrack?.addSink(localSurfaceView)
+        localStream?.addTrack(localScreenShareVideoTrack)
+        peerConnection?.addStream(localStream)
+
+    }
+
+    fun stopScreenCapturing() {
+        screenCapturer?.stopCapture()
+        screenCapturer?.dispose()
+        localScreenShareVideoTrack?.removeSink(localSurfaceView)
+        localSurfaceView.clearImage()
+        localStream?.removeTrack(localScreenShareVideoTrack)
+        localScreenShareVideoTrack?.dispose()
+    }
+
+    private fun createScreenCapturer(): VideoCapturer {
+        return ScreenCapturerAndroid(permissionIntent, object : MediaProjection.Callback(){
+            override fun onStop() {
+                super.onStop()
+                Log.d("permissions","onStop: permission of screen casting is stopped")
+            }
+        })
     }
 
 

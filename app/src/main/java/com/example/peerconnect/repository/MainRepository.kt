@@ -1,5 +1,6 @@
 package com.example.peerconnect.repository
 
+import android.content.Intent
 import com.example.peerconnect.firebaseClient.FirebaseClient
 import com.example.peerconnect.utils.DataModel
 import com.example.peerconnect.utils.DataModelType.Answer
@@ -167,5 +168,18 @@ class MainRepository @Inject constructor(
 
     override fun onTransferEventToSocket(data: DataModel) {
         firebaseClient.sendMessageToOtherClient(data){}
+    }
+
+    fun toggleScreenShare(isStarting: Boolean) {
+        if(isStarting){
+            webRTCClient.startScreenCapturing()
+        }else{
+            webRTCClient.stopScreenCapturing()
+        }
+
+    }
+
+    fun setScreenCaptureIntent(screenPermissionIntent: Intent) {
+        webRTCClient.setPermissionIntent(screenPermissionIntent)
     }
 }

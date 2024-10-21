@@ -17,6 +17,7 @@ import com.example.peerconnect.service.MainServiceActions.START_SERVICE
 import com.example.peerconnect.service.MainServiceActions.SWITCH_CAMERA
 import com.example.peerconnect.service.MainServiceActions.TOGGLE_AUDIO
 import com.example.peerconnect.service.MainServiceActions.TOGGLE_AUDIO_DEVICE
+import com.example.peerconnect.service.MainServiceActions.TOGGLE_SCREEN_SHARE
 import com.example.peerconnect.service.MainServiceActions.TOGGLE_VIDEO
 import com.example.peerconnect.utils.DataModel
 import com.example.peerconnect.utils.DataModelType
@@ -31,6 +32,7 @@ class MainService : Service(), MainRepository.Listener {
     private var isServiceRunning = false
     private var username: String? = null
     private  val TAG = "MainService"
+    private var isPreviousCallStateVideo = true
 
     private lateinit var notificationManager: NotificationManager
     private lateinit var rtcAudioManager: RTCAudioManager
@@ -42,6 +44,7 @@ class MainService : Service(), MainRepository.Listener {
         var endCallListener: EndCallListener? = null
         var localSurfaceView: SurfaceViewRenderer? = null
         var remoteSurfaceView: SurfaceViewRenderer? = null
+        var  screenPermissionIntent: Intent? = null
     }
 
     override fun onCreate() {
@@ -61,10 +64,30 @@ class MainService : Service(), MainRepository.Listener {
                 TOGGLE_AUDIO.name -> handleToggleAudio(incomingIntent)
                 TOGGLE_VIDEO.name -> handleToggleVideo(incomingIntent)
                 TOGGLE_AUDIO_DEVICE.name -> handleToggleAudioDevice(incomingIntent)
+                TOGGLE_SCREEN_SHARE.name -> handleToggleScreenShare(incomingIntent)
                 else -> Unit
             }
         }
         return START_STICKY
+    }
+
+    private fun handleToggleScreenShare(incomingIntent: Intent) {
+        val isStarting = incomingIntent.getBooleanExtra("isStarting", true)
+        if(isStarting){
+            // we should start screen share
+            //but we have to keep it in mind that we should first remove the camera streaming
+            if(isPreviousCallStateVideo){
+                mainRepository.toggleVideo(true)
+
+            }
+            mainRepository.setScreenCaptureIntent(screenPermissionIntent!!)
+            mainRepository.toggleScreenShare(true)
+        }else {
+            mainRepository.toggleScreenShare(false)
+            if(isPreviousCallStateVideo){
+                mainRepository.toggleVideo(false)
+            }
+        }
     }
 
     private fun handleToggleAudioDevice(incomingIntent: Intent) {
@@ -84,6 +107,7 @@ class MainService : Service(), MainRepository.Listener {
 
     private fun handleToggleVideo(incomingIntent: Intent) {
         val shouldBeMuted = incomingIntent.getBooleanExtra("shouldBeMuted", false)
+        this.isPreviousCallStateVideo = !shouldBeMuted
         mainRepository.toggleVideo(shouldBeMuted = shouldBeMuted)
     }
 
@@ -112,6 +136,8 @@ class MainService : Service(), MainRepository.Listener {
         val isCaller = incomingIntent.getBooleanExtra("isCaller", false)
         val isVideoCall = incomingIntent.getBooleanExtra("isVideoCall", true)
         val target = incomingIntent.getStringExtra("target")
+
+        this.isPreviousCallStateVideo= isVideoCall
 
         mainRepository.setTarget(target!!)
         //initialize our widgets , get audio and video call
