@@ -10,6 +10,7 @@ import com.example.peerconnect.R
 import com.example.peerconnect.databinding.ActivityCallBinding
 import com.example.peerconnect.service.MainService
 import com.example.peerconnect.service.MainServiceRepository
+import com.example.peerconnect.webrtc.RTCAudioManager
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -22,6 +23,7 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener {
 
     private var isMicrophoneMuted = false
     private var isCameraMuted = false
+    private var isSpeakerMode = true
 
     @Inject lateinit var serviceRepository: MainServiceRepository
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,6 +68,7 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener {
         MainService.endCallListener = this
         setupMicToggleClicked()
         setCameraToggleClicked()
+        setUpToggleAudioDevice()
     }
 
     private fun setupMicToggleClicked(){
@@ -94,6 +97,21 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener {
                     toggleCameraButton.setImageResource(R.drawable.ic_camera_off)
                 }
                 isCameraMuted = !isCameraMuted
+            }
+        }
+    }
+
+    private fun setUpToggleAudioDevice(){
+        binding.apply {
+            toggleAudioDevice.setOnClickListener {
+                if(!isSpeakerMode){
+                    toggleAudioDevice.setImageResource(R.drawable.ic_speaker)
+                    serviceRepository.toggleAudioDevice(RTCAudioManager.AudioDevice.EARPIECE.name)
+                }else{
+                    toggleAudioDevice.setImageResource(R.drawable.ic_ear)
+                    serviceRepository.toggleAudioDevice(RTCAudioManager.AudioDevice.SPEAKER_PHONE.name)
+                }
+                isSpeakerMode = !isSpeakerMode
             }
         }
     }

@@ -62,4 +62,12 @@ class MainServiceRepository @Inject constructor(
         intent.putExtra("shouldBeMuted", shouldBeMuted)
         startServiceIntent(intent)
     }
+
+    fun toggleAudioDevice(type: String) {
+        val intent = Intent(context, MainService::class.java)
+        intent.action = MainServiceActions.TOGGLE_AUDIO_DEVICE.name
+        intent.putExtra("type", type)
+        startServiceIntent(intent)
+
+    }
 }

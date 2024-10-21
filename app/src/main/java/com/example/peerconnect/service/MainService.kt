@@ -7,6 +7,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.peerconnect.R
 import com.example.peerconnect.repository.MainRepository
@@ -15,10 +16,12 @@ import com.example.peerconnect.service.MainServiceActions.SETUP_VIEWS
 import com.example.peerconnect.service.MainServiceActions.START_SERVICE
 import com.example.peerconnect.service.MainServiceActions.SWITCH_CAMERA
 import com.example.peerconnect.service.MainServiceActions.TOGGLE_AUDIO
+import com.example.peerconnect.service.MainServiceActions.TOGGLE_AUDIO_DEVICE
 import com.example.peerconnect.service.MainServiceActions.TOGGLE_VIDEO
 import com.example.peerconnect.utils.DataModel
 import com.example.peerconnect.utils.DataModelType
 import com.example.peerconnect.utils.isValid
+import com.example.peerconnect.webrtc.RTCAudioManager
 import dagger.hilt.android.AndroidEntryPoint
 import org.webrtc.SurfaceViewRenderer
 import javax.inject.Inject
@@ -30,6 +33,7 @@ class MainService : Service(), MainRepository.Listener {
     private  val TAG = "MainService"
 
     private lateinit var notificationManager: NotificationManager
+    private lateinit var rtcAudioManager: RTCAudioManager
 
     @Inject lateinit var mainRepository: MainRepository
 
@@ -42,6 +46,8 @@ class MainService : Service(), MainRepository.Listener {
 
     override fun onCreate() {
         super.onCreate()
+        rtcAudioManager= RTCAudioManager.create(this)
+        rtcAudioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.SPEAKER_PHONE)
         notificationManager = getSystemService(NotificationManager::class.java)
     }
 
@@ -54,10 +60,26 @@ class MainService : Service(), MainRepository.Listener {
                 SWITCH_CAMERA.name -> handleSwitchCamera()
                 TOGGLE_AUDIO.name -> handleToggleAudio(incomingIntent)
                 TOGGLE_VIDEO.name -> handleToggleVideo(incomingIntent)
+                TOGGLE_AUDIO_DEVICE.name -> handleToggleAudioDevice(incomingIntent)
                 else -> Unit
             }
         }
         return START_STICKY
+    }
+
+    private fun handleToggleAudioDevice(incomingIntent: Intent) {
+        val type = when(incomingIntent.getStringExtra("type")) {
+            RTCAudioManager.AudioDevice.SPEAKER_PHONE.name -> RTCAudioManager.AudioDevice.SPEAKER_PHONE
+            RTCAudioManager.AudioDevice.EARPIECE.name -> RTCAudioManager.AudioDevice.EARPIECE
+            else -> null
+        }
+
+        type?.let {
+            rtcAudioManager.setDefaultAudioDevice(it)
+            rtcAudioManager.selectAudioDevice(it)
+            Log.d(TAG, "Selected audio device: ${it.name}")
+        }
+
     }
 
     private fun handleToggleVideo(incomingIntent: Intent) {
