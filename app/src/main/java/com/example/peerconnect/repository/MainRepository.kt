@@ -1,6 +1,7 @@
 package com.example.peerconnect.repository
 
 import android.content.Intent
+import android.util.Log
 import com.example.peerconnect.firebaseClient.FirebaseClient
 import com.example.peerconnect.utils.DataModel
 import com.example.peerconnect.utils.DataModelType.Answer
@@ -102,6 +103,7 @@ class MainRepository @Inject constructor(
         webRTCClient.initializeWebrtcClient(username, object : MyPeerObserver() {
             override fun onAddStream(p0: MediaStream?) {
                 super.onAddStream(p0)
+                //Notify the creator that new stream is available
                 try {
                     p0?.videoTracks?.get(0)?.addSink(remoteView)
                 }catch (e:Exception){
@@ -145,6 +147,7 @@ class MainRepository @Inject constructor(
         changeMyStatus(UserStatus.ONLINE)
     }
     fun sendEndCall(){
+        Log.d("TAG", "sendEndCall:$target")
         onTransferEventToSocket(
             DataModel(type= EndCall, target = target!!)
         )

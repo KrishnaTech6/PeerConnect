@@ -148,6 +148,8 @@ class MainService : Service(), MainRepository.Listener {
         val isVideoCall = incomingIntent.getBooleanExtra("isVideoCall", true)
         val target = incomingIntent.getStringExtra("target")
 
+        Log.d("TAG", "isCaller: $isCaller, isVideoCall: $isVideoCall, target: $target")
+
         this.isPreviousCallStateVideo= isVideoCall
 
         mainRepository.setTarget(target!!)
@@ -160,6 +162,12 @@ class MainService : Service(), MainRepository.Listener {
         if(!isCaller){// is a Callee
             mainRepository.startCall()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        rtcAudioManager.stop()
+        mainRepository.endCall()
     }
 
     private fun handleStartService(incomingIntent: Intent) {

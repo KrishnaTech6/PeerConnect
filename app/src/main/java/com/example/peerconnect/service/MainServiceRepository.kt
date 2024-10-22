@@ -3,7 +3,7 @@ package com.example.peerconnect.service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import com.example.peerconnect.ui.CallActivity
+import android.util.Log
 import javax.inject.Inject
 
 class MainServiceRepository @Inject constructor(
@@ -28,7 +28,8 @@ class MainServiceRepository @Inject constructor(
     }
 
     fun setupViews(videoCall: Boolean, caller: Boolean, target: String) {
-        val intent = Intent(context, CallActivity::class.java)
+        Log.d("TAG", "target: setUpViews $target")
+        val intent = Intent(context, MainService::class.java)
             .apply {
                 action = MainServiceActions.SETUP_VIEWS.name
                 putExtra("isVideoCall", videoCall)
