@@ -97,15 +97,14 @@ class MainRepository @Inject constructor(
     }
 
 
-    fun initWebRTCClient(username: String){
+    fun initWebRTCClient(username: String) {
         webRTCClient.listener = this
-        webRTCClient.initializeWebRTCClient(username, object: MyPeerObserver(){
+        webRTCClient.initializeWebrtcClient(username, object : MyPeerObserver() {
             override fun onAddStream(p0: MediaStream?) {
                 super.onAddStream(p0)
-                //notify the creator of this class that there is a new stream available
                 try {
                     p0?.videoTracks?.get(0)?.addSink(remoteView)
-                } catch (e: Exception) {
+                }catch (e:Exception){
                     e.printStackTrace()
                 }
             }

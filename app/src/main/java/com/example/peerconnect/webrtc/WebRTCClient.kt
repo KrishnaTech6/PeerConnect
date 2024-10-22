@@ -96,10 +96,12 @@ class WebRTCClient @Inject constructor(
     private fun createPeerConnection(observer: PeerConnection.Observer): PeerConnection? {
         return peerConnectionFactory.createPeerConnection(iceServer, observer)
     }
-     fun initializeWebRTCClient(username: String, observer: PeerConnection.Observer){
+    fun initializeWebrtcClient(
+        username: String, observer: PeerConnection.Observer
+    ) {
         this.username = username
-        localTrackId= "${username}_track"
-        localStreamId= "${username}_stream"
+        localTrackId = "${username}_track"
+        localStreamId = "${username}_stream"
         peerConnection = createPeerConnection(observer)
     }
 
