@@ -45,6 +45,11 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, Main
         init()
     }
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        mainServiceRepository.stopService()
+    }
+
     private fun init(){
 
         username = intent.getStringExtra("username")

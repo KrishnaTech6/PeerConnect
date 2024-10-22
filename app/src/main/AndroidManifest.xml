@@ -42,8 +42,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.CloseActivity"
+            android:exported="true" />
 
         <service android:name=".service.MainService" />
+        <receiver android:name=".service.MainServiceReceiver"/>
     </application>
 
 </manifest>

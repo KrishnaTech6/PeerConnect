@@ -3,6 +3,7 @@ package com.example.peerconnect.service
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.os.Build
@@ -14,6 +15,7 @@ import com.example.peerconnect.repository.MainRepository
 import com.example.peerconnect.service.MainServiceActions.END_CALL
 import com.example.peerconnect.service.MainServiceActions.SETUP_VIEWS
 import com.example.peerconnect.service.MainServiceActions.START_SERVICE
+import com.example.peerconnect.service.MainServiceActions.STOP_SERVICE
 import com.example.peerconnect.service.MainServiceActions.SWITCH_CAMERA
 import com.example.peerconnect.service.MainServiceActions.TOGGLE_AUDIO
 import com.example.peerconnect.service.MainServiceActions.TOGGLE_AUDIO_DEVICE
@@ -65,10 +67,19 @@ class MainService : Service(), MainRepository.Listener {
                 TOGGLE_VIDEO.name -> handleToggleVideo(incomingIntent)
                 TOGGLE_AUDIO_DEVICE.name -> handleToggleAudioDevice(incomingIntent)
                 TOGGLE_SCREEN_SHARE.name -> handleToggleScreenShare(incomingIntent)
+                STOP_SERVICE.name -> handleStopService()
                 else -> Unit
             }
         }
         return START_STICKY
+    }
+
+    private fun handleStopService() {
+        mainRepository.endCall()
+        mainRepository.logOff(){
+            isServiceRunning= false
+            stopSelf()
+        }
     }
 
     private fun handleToggleScreenShare(incomingIntent: Intent) {
@@ -171,10 +182,16 @@ class MainService : Service(), MainRepository.Listener {
             val notificationChannel= NotificationChannel(
                 "channel1", "foreground",NotificationManager.IMPORTANCE_HIGH
             )
+            val intent= Intent(this, MainServiceReceiver::class.java).apply {
+                action= "ACTION_EXIT"
+            }
+            val pendingIntent: PendingIntent =PendingIntent.getBroadcast(this , 0 , intent, PendingIntent.FLAG_IMMUTABLE)
+
+
             notificationManager.createNotificationChannel(notificationChannel)
             val notification = NotificationCompat.Builder(
                 this, "channel1"
-            ).setSmallIcon(R.mipmap.ic_launcher)
+            ).setSmallIcon(R.mipmap.ic_launcher).addAction(R.drawable.ic_end_call, "Exit", pendingIntent)
 
             startForeground(1, notification.build())
         }

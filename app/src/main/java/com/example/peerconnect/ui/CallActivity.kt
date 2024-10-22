@@ -16,8 +16,14 @@ import com.example.peerconnect.R
 import com.example.peerconnect.databinding.ActivityCallBinding
 import com.example.peerconnect.service.MainService
 import com.example.peerconnect.service.MainServiceRepository
+import com.example.peerconnect.utils.convertToHumanTime
 import com.example.peerconnect.webrtc.RTCAudioManager
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -73,6 +79,15 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener {
 
         binding.apply {
             callTitleTv.text = "In call with $target"
+            CoroutineScope(Dispatchers.IO).launch {
+                for (i in 0..3600){
+                    delay(1000)
+                    withContext(Dispatchers.Main){
+                        //convert this int to human readable time
+                        callTimerTv.text = i.convertToHumanTime()
+                    }
+                }
+            }
             if(!isVideoCall){
                 toggleCameraButton.isVisible= false
                 screenShareButton.isVisible= false
@@ -192,6 +207,11 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener {
                 isSpeakerMode = !isSpeakerMode
             }
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        serviceRepository.sendEndCall()
     }
 
     override fun onCallEnded() {

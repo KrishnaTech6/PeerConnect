@@ -14,5 +14,12 @@ fun AppCompatActivity.getCameraAndMicPermissions(success:()-> Unit){
                 Toast.makeText(this, "Camera and mic permission is required", Toast.LENGTH_SHORT).show()
             }
     }
+}
 
+fun Int.convertToHumanTime() : String{
+    val seconds = this%60
+    val minutes = this/60
+    val secondsString = if (seconds<10) "0$seconds" else "$seconds"
+    val minutesString = if (minutes < 10) "0$minutes" else "$minutes"
+    return "$minutesString:$secondsString"
 }

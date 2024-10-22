@@ -182,4 +182,6 @@ class MainRepository @Inject constructor(
     fun setScreenCaptureIntent(screenPermissionIntent: Intent) {
         webRTCClient.setPermissionIntent(screenPermissionIntent)
     }
+
+    fun logOff(function: () -> Unit)= firebaseClient.logOff(function)
 }

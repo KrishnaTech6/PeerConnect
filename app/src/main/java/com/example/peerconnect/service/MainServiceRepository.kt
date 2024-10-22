@@ -77,4 +77,10 @@ class MainServiceRepository @Inject constructor(
         intent.putExtra("isStarting", isStarting)
         startServiceIntent(intent)
     }
+
+    fun stopService() {
+        val intent = Intent(context, MainService::class.java)
+        intent.action = MainServiceActions.STOP_SERVICE.name
+        startServiceIntent(intent)
+    }
 }
