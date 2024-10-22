@@ -15,7 +15,9 @@ class MainServiceReceiver:BroadcastReceiver() {
         if(intent?.action == "ACTION_EXIT"){
             //we want to exit the app
             serviceRepository.stopService()
-            context?.startActivity(Intent(context,CloseActivity::class.java))
+            context?.startActivity(Intent(context,CloseActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            })
         }
     }
 }

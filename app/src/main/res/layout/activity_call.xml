@@ -72,13 +72,13 @@
             android:layout_height="60dp"
             android:id="@+id/toggleMicrophoneButton"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_mic_off"/>
+            android:src="@drawable/ic_mic_on"/>
         <androidx.appcompat.widget.AppCompatImageButton
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:id="@+id/toggleCameraButton"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_camera_off"/>
+            android:src="@drawable/ic_camera_on"/>
         <androidx.appcompat.widget.AppCompatImageButton
             android:layout_width="60dp"
             android:layout_height="60dp"

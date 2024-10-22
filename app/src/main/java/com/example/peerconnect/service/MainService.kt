@@ -1,10 +1,10 @@
 package com.example.peerconnect.service
 
-import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
@@ -178,24 +178,40 @@ class MainService : Service(), MainRepository.Listener {
         }
     }
 
-    @SuppressLint("ForegroundServiceType")
     private fun startServiceWithNotification() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            val notificationChannel= NotificationChannel(
-                "channel1", "foreground",NotificationManager.IMPORTANCE_HIGH
+        // Check for Android O and above
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Initialize the notification manager
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+            // Create notification channel
+            val notificationChannel = NotificationChannel(
+                "channel1", "foreground", NotificationManager.IMPORTANCE_HIGH
             )
-            val intent= Intent(this, MainServiceReceiver::class.java).apply {
-                action= "ACTION_EXIT"
-            }
-            val pendingIntent: PendingIntent =PendingIntent.getBroadcast(this , 0 , intent, PendingIntent.FLAG_IMMUTABLE)
+            notificationChannel.description = "Channel for foreground service"
 
-
+            // Register the notification channel
             notificationManager.createNotificationChannel(notificationChannel)
-            val notification = NotificationCompat.Builder(
-                this, "channel1"
-            ).setSmallIcon(R.mipmap.ic_launcher).addAction(R.drawable.ic_end_call, "Exit", pendingIntent)
 
-            startForeground(1, notification.build())
+            // Create an intent for the exit action
+            val intent = Intent(this, MainServiceReceiver::class.java).apply {
+                action = "ACTION_EXIT"
+            }
+            val pendingIntent: PendingIntent = PendingIntent.getBroadcast(
+                this, 0, intent, PendingIntent.FLAG_IMMUTABLE
+            )
+
+            // Build the notification
+            val notification = NotificationCompat.Builder(this, "channel1")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("Service Running")
+                .setContentText("Tap Exit to stop the service.")
+                .addAction(R.drawable.ic_end_call, "Exit", pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_HIGH) // Optional: For lower versions
+                .build()
+
+            // Start the service in the foreground with the notification
+            startForeground(1, notification)
         }
     }
 

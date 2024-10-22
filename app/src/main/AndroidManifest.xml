@@ -8,6 +8,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -46,7 +47,12 @@
             android:name=".ui.CloseActivity"
             android:exported="true" />
 
-        <service android:name=".service.MainService" />
+        <service
+            android:name=".service.MainService"
+            android:permission="android.permission.FOREGROUND_SERVICE"
+            android:foregroundServiceType="mediaProjection"
+            android:exported="false" />
+
         <receiver android:name=".service.MainServiceReceiver"/>
     </application>
 

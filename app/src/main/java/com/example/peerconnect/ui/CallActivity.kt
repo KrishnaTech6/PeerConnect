@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -46,6 +47,7 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener {
         requestScreenCaptureLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) { result ->
             if(result.resultCode == RESULT_OK){
+                Log.d("ScreenShare", "3")
                 val intent= result.data
                 //give result to service and it passes to webrtc client
                 MainService.screenPermissionIntent = intent
@@ -119,14 +121,12 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener {
                     AlertDialog.Builder(this@CallActivity)
                         .setTitle("Screen Casting")
                         .setMessage("Are you sure to cast your screen?")
-                        .setNegativeButton("No"){dialog, _->
+                        .setPositiveButton("Yes"){dialog, _->
                             startScreenCasting()
                             dialog.dismiss()
-                        }
-                        .setPositiveButton("Yes"){dialog, _->
+                        }.setNegativeButton("No"){dialog, _->
                             dialog.dismiss()
                         }.create().show()
-
                 }else{
                     isScreenCasting = false
                     updateUiToScreenCaptureIsOff()
@@ -169,10 +169,10 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener {
             toggleMicrophoneButton.setOnClickListener {
                 if(!isMicrophoneMuted){
                     serviceRepository.toggleAudio(true)
-                    toggleMicrophoneButton.setImageResource(R.drawable.ic_mic_on)
+                    toggleMicrophoneButton.setImageResource(R.drawable.ic_mic_off)
                 }else{
                     serviceRepository.toggleAudio(false)
-                    toggleMicrophoneButton.setImageResource(R.drawable.ic_mic_off)
+                    toggleMicrophoneButton.setImageResource(R.drawable.ic_mic_on)
                 }
                 isMicrophoneMuted =!isMicrophoneMuted
             }
@@ -184,10 +184,10 @@ class CallActivity : AppCompatActivity(), MainService.EndCallListener {
             toggleCameraButton.setOnClickListener {
                 if(!isCameraMuted){
                     serviceRepository.toggleVideo(true)
-                    toggleCameraButton.setImageResource(R.drawable.ic_camera_on)
+                    toggleCameraButton.setImageResource(R.drawable.ic_camera_off)
                 }else{
                     serviceRepository.toggleVideo(false)
-                    toggleCameraButton.setImageResource(R.drawable.ic_camera_off)
+                    toggleCameraButton.setImageResource(R.drawable.ic_camera_on)
                 }
                 isCameraMuted = !isCameraMuted
             }
