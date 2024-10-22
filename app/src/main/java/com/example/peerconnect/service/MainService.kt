@@ -164,12 +164,6 @@ class MainService : Service(), MainRepository.Listener {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        rtcAudioManager.stop()
-        mainRepository.endCall()
-    }
-
     private fun handleStartService(incomingIntent: Intent) {
         //Start our foreground service
         if(!isServiceRunning){
